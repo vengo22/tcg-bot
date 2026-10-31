@@ -95,7 +95,7 @@ async def fetch_latest_sets(session, api_key: str | None = None, count: int = 15
 
 # --- News-Feeds -----------------------------------------------------------------
 async def fetch_feed(session, url: str):
-    """Liefert [(id, titel, link, zusammenfassung)]."""
+    """Liefert [(id, titel, link, zusammenfassung, datum)]."""
     async with session.get(url, headers=FEED_HEADERS, timeout=TIMEOUT) as r:
         r.raise_for_status()
         text = await r.text()
@@ -104,5 +104,6 @@ async def fetch_feed(session, url: str):
     for e in feed.entries:
         key = e.get("id") or e.get("link") or e.get("title")
         if key:
-            items.append((key, e.get("title", ""), e.get("link", ""), e.get("summary", "")))
+            items.append((key, e.get("title", ""), e.get("link", ""), e.get("summary", ""),
+                          e.get("published") or e.get("updated")))
     return items

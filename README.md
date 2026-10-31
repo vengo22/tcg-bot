@@ -7,6 +7,10 @@ Hält dich auf deinem Discord-Server auf dem Laufenden:
 - **#preisalarme**: Pingt dich, wenn ein Produkt auf deiner Watchlist günstig ist (Quelle: Cardmarket).
 - **#preis-graphen**: Hier nutzt du die Befehle, z.B. `/graph` für einen Preisverlauf als Bild.
 
+## #tcg-info
+
+Alle TCG-News an einem Ort, jede Meldung mit Kennzeichnung (🚀 Release, 📣 Ankündigung, 🗓️ Vorbestellung, 💶 Preise & Markt, 🏆 Turniere, 📰 News), Quelle und Datum. Oben angepinnt steht der **Release-Kalender**: kommende und zuletzt erschienene Sets mit Erscheinungsdatum, Countdown und aktuellen Cardmarket-Preisen für Top-Trainer-Box und Display. Er aktualisiert sich alle 6 Stunden. Die Set-Liste steht in `config.json` → `release_calendar`. `/info` postet Kalender und neueste Meldung sofort.
+
 ## Shop- und Deal-Monitor
 
 | Kanal | Was dort landet |

@@ -2,7 +2,7 @@
   "category_name": "📈 Pokémon TCG",
   "channels": {
     "sets": "neue-sets",
-    "news": "tcg-news",
+    "news": "tcg-info",
     "alerts": "preisalarme",
     "charts": "preis-graphen",
     "preorder": "vorbestellung",
@@ -95,5 +95,49 @@
       "google_news": 20,
       "ebay": 15
     }
-  }
+  },
+  "release_calendar": [
+    {
+      "name_de": "Erhabene Helden",
+      "name_en": "Ascended Heroes",
+      "code": "ASC",
+      "release": "2026-01-30"
+    },
+    {
+      "name_de": "Optimale Ordnung",
+      "name_en": "Perfect Order",
+      "release": "2026-03-27"
+    },
+    {
+      "name_de": "Wachsendes Chaos",
+      "name_en": "Chaos Rising",
+      "release": "2026-05-22"
+    },
+    {
+      "name_de": "Dunkelnacht",
+      "name_en": "Pitch Black",
+      "code": "PBL",
+      "release": "2026-07-17"
+    },
+    {
+      "name_de": "30 Jahre",
+      "name_en": "30th Celebration",
+      "release": "2026-09-16",
+      "emoji": "🎉"
+    },
+    {
+      "name_de": "Mega-Entwicklung – Delta-Herrschaft",
+      "name_en": "Delta Reign",
+      "release": "2026-11-06",
+      "emoji": "🔥",
+      "products": "Mehr als 135 Karten, vier Mega-ex (u.a. Mega-Rayquaza-ex)"
+    },
+    {
+      "name_de": "Aura Seeker (nur Japan)",
+      "code": "M7",
+      "release": "2026-11-27",
+      "emoji": "🇯🇵",
+      "products": "Mega-Lucario Z-ex, Mega-Knakrack Z-ex, Mega-Absol Z-ex"
+    }
+  ]
 }

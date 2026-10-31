@@ -14,6 +14,7 @@ from discord.ext import commands, tasks
 
 from . import charts, sources
 from .db import DB
+from .info import InfoCog, news_embed
 from .monitor import MonitorCog
 
 log = logging.getLogger("tcgbot")
@@ -70,7 +71,9 @@ class TCGBot(commands.Bot):
         self.add_view(RoleButtons())
         cog = TCGCog(self)
         await self.add_cog(cog)
-        await self.add_cog(MonitorCog(self, CONFIG, cog.send_to))
+        monitor = MonitorCog(self, CONFIG, cog.send_to)
+        await self.add_cog(monitor)
+        await self.add_cog(InfoCog(self, CONFIG, cog.send_to, monitor.latest_news))
         guild_id = os.getenv("GUILD_ID")
         if guild_id:
             g = discord.Object(id=int(guild_id))
@@ -162,7 +165,7 @@ class TCGCog(commands.Cog):
         }
         topics = {
             "sets": "Neue Pokémon-TCG-Sets, sobald sie bekannt sind.",
-            "news": "News, Leaks und Artikel zu Pokémon-TCG.",
+            "news": "Alle TCG-News, Release-Kalender (angepinnt) mit Erscheinungsdaten und Preisen.",
             "alerts": "Preisalarme aus deiner Watchlist (/watch).",
             "charts": "Hier dürfen alle Befehle nutzen: /preis, /graph, /ttb, /quellen …",
             "preorder": "Neue Vorbestellungen aus Shops, mydealz und News.",
@@ -181,6 +184,13 @@ class TCGCog(commands.Cog):
                                                      overwrites=overwrites, reason="TCG-Bot Setup")
                 created.append(ch.mention)
             self.db.set_channel(guild.id, kind, ch.id)
+
+        info = self.bot.get_cog("InfoCog")
+        if info:  # Kalender anlegen/aktualisieren; neu angelegtes #tcg-info bekommt gleich die neueste Meldung
+            await info.post_overview(guild.id)
+            news_ch = guild.get_channel(self.db_channel(guild.id, "news"))
+            if news_ch and news_ch.mention in created:
+                await info.post_test_news(guild.id)
 
         charts_ch = guild.get_channel(self.db_channel(guild.id, "charts"))
         if charts_ch and created:
@@ -333,13 +343,12 @@ class TCGCog(commands.Cog):
                 log.warning("Feed %s nicht erreichbar", url)
                 continue
             first_run = not self.db.has_seen_any(f"news:{url}")
-            for key, title, link, summary in reversed(items):
+            for key, title, link, summary, published in reversed(items):
                 if not self.db.mark_seen(f"news:{url}", key) or first_run:
                     continue
                 if not any(k in title.lower() for k in keywords):
                     continue
-                e = discord.Embed(title=title[:256], url=link, description=strip_html(summary)[:300], color=0x3B4CCA)
-                e.set_footer(text=url.split("/")[2])
+                e = news_embed(title, link, url.split("/")[2].removeprefix("www."), published, strip_html(summary))
                 await self.send_to("news", embed=e)
 
     @tasks.loop(minutes=180)

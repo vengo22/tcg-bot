@@ -24,6 +24,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 
+from .info import news_embed
+
 log = logging.getLogger("tcgbot.monitor")
 
 TIMEOUT = aiohttp.ClientTimeout(total=40)
@@ -192,6 +194,7 @@ def _rss_items(raw: bytes):
     root = ET.fromstring(raw)
     for it in root.iter("item"):
         d = {"title": html.unescape(it.findtext("title") or ""), "url": it.findtext("link") or "",
+             "date": it.findtext("pubDate"),
              "description": it.findtext("description") or "", "merchant": None, "price": None}
         for child in it:
             if child.tag.endswith("merchant"):  # mydealz: <pepper:merchant name=".." price=".."/>
@@ -291,6 +294,27 @@ class MonitorCog(commands.Cog):
     def cog_unload(self):
         for loop in (self.shop_loop, self.deal_loop, self.gnews_loop, self.ebay_loop):
             loop.cancel()
+
+    async def latest_news(self):
+        """Neueste Pokémon-Meldung aus Google News (für den Test-Post in #tcg-info)."""
+        for q in self.cfg["google_news"]:
+            if q.get("kind") == "preorder":
+                continue
+            try:
+                items = await fetch_rss(self.bot.http_session, self._gnews_url(q))
+            except Exception:
+                continue
+            items = [i for i in items if POKEMON_RE.search(i["title"])]
+            if items:
+                from email.utils import parsedate_to_datetime
+                def ts(i):
+                    try:
+                        return parsedate_to_datetime(i["date"]).timestamp()
+                    except (TypeError, ValueError):
+                        return 0
+                i = max(items, key=ts)
+                return i["title"], i["url"], "Google News", i["date"], None
+        return None
 
     @staticmethod
     def _gnews_url(q):
@@ -475,9 +499,7 @@ class MonitorCog(commands.Cog):
                     continue
                 if not self.db.mark_seen("gnews", it["title"][:200]) or not src["seeded"]:
                     continue
-                e = discord.Embed(title=it["title"][:256], url=it["url"], color=0x3B4CCA)
-                e.set_footer(text="Google News")
-                await self.send_to(channel, embed=e)
+                await self.send_to(channel, embed=news_embed(it["title"], it["url"], "Google News", it["date"]))
             self._mark(url, True, len(items))
 
     @tasks.loop(minutes=15)
