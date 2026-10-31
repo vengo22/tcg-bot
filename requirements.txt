@@ -1,0 +1,4 @@
+discord.py>=2.4
+aiohttp>=3.9
+matplotlib>=3.8
+feedparser>=6.0

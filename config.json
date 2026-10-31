@@ -1,0 +1,25 @@
+{
+  "category_name": "📈 Pokémon TCG",
+  "channels": {
+    "sets": "neue-sets",
+    "news": "tcg-news",
+    "alerts": "preisalarme",
+    "charts": "preis-graphen"
+  },
+  "roles": {
+    "sets": "Set-News",
+    "alerts": "Preisalarm"
+  },
+  "news_feeds": [
+    "https://www.pokebeach.com/feed",
+    "https://www.pokeguardian.com/feed",
+    "https://pokemonblog.com/feed/"
+  ],
+  "news_keywords": ["set", "expansion", "erweiterung", "release", "pre-release", "elite trainer", "booster", "reveal", "revealed", "japan"],
+  "intervals_minutes": {
+    "sets": 360,
+    "news": 30,
+    "prices": 180
+  },
+  "price_drop_percent": 10
+}
