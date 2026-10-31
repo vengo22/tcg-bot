@@ -7,6 +7,28 @@ Hält dich auf deinem Discord-Server auf dem Laufenden:
 - **#preisalarme**: Pingt dich, wenn ein Produkt auf deiner Watchlist günstig ist (Quelle: Cardmarket).
 - **#preis-graphen**: Hier nutzt du die Befehle, z.B. `/graph` für einen Preisverlauf als Bild.
 
+## Shop- und Deal-Monitor
+
+| Kanal | Was dort landet |
+|---|---|
+| **#vorbestellung** | Neue Vorbestellungen aus Shops, mydealz und Google News |
+| **#tcg-artikel** | Neue Pokémon-TCG-Produkte in den überwachten Shops und Pokémon-Deals von mydealz |
+| **#restock** | Ausverkaufte Produkte, die wieder lieferbar sind (Ping-Rolle **Restock**) |
+| **📦 Top-Trainer-Boxen → #ttb-neu** | Neue deutsche, versiegelte TTBs bei seriösen Händlern |
+| **📦 Top-Trainer-Boxen → #ttb-billigste** | Sobald eine TTB irgendwo günstiger ist als das bisher günstigste aktuelle Angebot |
+
+**Quellen:** Shops mit offenem Produktkatalog (Shopify/WooCommerce, Liste in `config.json` → `monitor.shops`, erweiterbar per `/shop_hinzufuegen`), mydealz (auch Amazon, MediaMarkt, Pokémon Center), Google News, optional eBay. Shops werden alle 5 Minuten geprüft, mydealz alle 3 Minuten.
+
+**Seriosität:** Nur Shops aus der Liste (geprüft: echter Shop mit Impressum), eBay nur Verkäufer mit ≥ 99 % positiv und ≥ 100 Bewertungen, nur Artikel aus Deutschland. Angebote mit Wörtern wie „leer“, „geöffnet“, „ohne Folie“, „Replica“ oder gegradete Karten werden ignoriert. TTB-Preise unter 25 € gelten als unseriös und werden ignoriert.
+
+**Grenzen:** Amazon, Smyths, Pokémon Center und Shops, die automatische Abfragen verbieten, werden nicht direkt abgefragt, sondern nur über mydealz/Google News erfasst. Shop-Preise sind ohne Versand.
+
+**eBay einrichten (optional):** Auf https://developer.ebay.com ein kostenloses Konto anlegen, eine „Production“-App erstellen und `EBAY_CLIENT_ID` (App ID) und `EBAY_CLIENT_SECRET` (Cert ID) in die `.env` auf dem Server eintragen.
+
+Weitere Befehle: `/ttb` (aktuell günstigste TTBs), `/quellen` (Status aller Quellen), `/shop_hinzufuegen`, `/shop_entfernen`.
+
+Nach einem Update einmal `/setup` ausführen, damit die neuen Kanäle und Rollen angelegt werden.
+
 ## Befehle
 
 | Befehl | Was er macht |

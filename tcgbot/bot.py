@@ -14,6 +14,7 @@ from discord.ext import commands, tasks
 
 from . import charts, sources
 from .db import DB
+from .monitor import MonitorCog
 
 log = logging.getLogger("tcgbot")
 ROOT = Path(__file__).resolve().parent.parent
@@ -67,7 +68,9 @@ class TCGBot(commands.Bot):
     async def setup_hook(self):
         self.http_session = aiohttp.ClientSession()
         self.add_view(RoleButtons())
-        await self.add_cog(TCGCog(self))
+        cog = TCGCog(self)
+        await self.add_cog(cog)
+        await self.add_cog(MonitorCog(self, CONFIG, cog.send_to))
         guild_id = os.getenv("GUILD_ID")
         if guild_id:
             g = discord.Object(id=int(guild_id))
@@ -144,9 +147,13 @@ class TCGCog(commands.Cog):
             if not discord.utils.get(guild.roles, name=name):
                 await guild.create_role(name=name, mentionable=True, reason="TCG-Bot Setup")
 
-        category = discord.utils.get(guild.categories, name=CONFIG["category_name"])
-        if category is None:
-            category = await guild.create_category(CONFIG["category_name"], reason="TCG-Bot Setup")
+        categories = {}
+
+        async def get_category(name):
+            if name not in categories:
+                cat = discord.utils.get(guild.categories, name=name)
+                categories[name] = cat or await guild.create_category(name, reason="TCG-Bot Setup")
+            return categories[name]
 
         # Nur der Bot schreibt in die Info-Kanäle, alle anderen lesen.
         read_only = {
@@ -155,12 +162,18 @@ class TCGCog(commands.Cog):
         }
         topics = {
             "sets": "Neue Pokémon-TCG-Sets, sobald sie bekannt sind.",
-            "news": "News & Leaks zu kommenden Sets.",
+            "news": "News, Leaks und Artikel zu Pokémon-TCG.",
             "alerts": "Preisalarme aus deiner Watchlist (/watch).",
-            "charts": "Preis-Graphen per /graph – hier dürfen alle Befehle nutzen.",
+            "charts": "Hier dürfen alle Befehle nutzen: /preis, /graph, /ttb, /quellen …",
+            "preorder": "Neue Vorbestellungen aus Shops, mydealz und News.",
+            "articles": "Neue Pokémon-TCG-Produkte in Shops und Deals von mydealz.",
+            "restock": "Ausverkaufte Produkte, die wieder lieferbar sind – schnell sein!",
+            "ttb_new": "Neue deutsche, versiegelte Top-Trainer-Boxen bei seriösen Händlern.",
+            "ttb_cheap": "Neuer Tiefstpreis für eine deutsche Top-Trainer-Box (seriöse Händler).",
         }
         created = []
         for kind, name in CONFIG["channels"].items():
+            category = await get_category(CONFIG["channel_categories"].get(kind, CONFIG["category_name"]))
             ch = discord.utils.get(category.text_channels, name=name)
             if ch is None:
                 overwrites = {} if kind == "charts" else read_only

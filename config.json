@@ -4,22 +4,89 @@
     "sets": "neue-sets",
     "news": "tcg-news",
     "alerts": "preisalarme",
-    "charts": "preis-graphen"
+    "charts": "preis-graphen",
+    "preorder": "vorbestellung",
+    "articles": "tcg-artikel",
+    "restock": "restock",
+    "ttb_new": "ttb-neu",
+    "ttb_cheap": "ttb-billigste"
   },
   "roles": {
     "sets": "Set-News",
-    "alerts": "Preisalarm"
+    "alerts": "Preisalarm",
+    "ttb": "TTB-Deals",
+    "preorder": "Vorbestellung",
+    "restock": "Restock"
   },
   "news_feeds": [
     "https://www.pokebeach.com/feed",
     "https://www.pokeguardian.com/feed",
-    "https://pokemonblog.com/feed/"
+    "https://www.pokezentrum.de/feed/"
   ],
-  "news_keywords": ["set", "expansion", "erweiterung", "release", "pre-release", "elite trainer", "booster", "reveal", "revealed", "japan"],
+  "news_keywords": [
+    "set",
+    "expansion",
+    "erweiterung",
+    "release",
+    "pre-release",
+    "elite trainer",
+    "booster",
+    "reveal",
+    "revealed",
+    "japan"
+  ],
   "intervals_minutes": {
     "sets": 360,
     "news": 30,
     "prices": 180
   },
-  "price_drop_percent": 10
+  "price_drop_percent": 10,
+  "channel_categories": {
+    "ttb_new": "📦 Top-Trainer-Boxen",
+    "ttb_cheap": "📦 Top-Trainer-Boxen"
+  },
+  "monitor": {
+    "shops": [
+      "https://cardcosmos.de",
+      "https://godofcards.com"
+    ],
+    "deal_feeds": [
+      "https://www.mydealz.de/rss/gruppe/pokemon"
+    ],
+    "google_news": [
+      {
+        "q": "Pokémon Sammelkartenspiel",
+        "lang": "de"
+      },
+      {
+        "q": "Pokémon Karten vorbestellen",
+        "lang": "de",
+        "kind": "preorder"
+      },
+      {
+        "q": "Pokémon Top-Trainer-Box",
+        "lang": "de"
+      },
+      {
+        "q": "Pokémon TCG new set",
+        "lang": "en"
+      }
+    ],
+    "ebay": {
+      "queries": [
+        "pokemon top trainer box deutsch"
+      ],
+      "min_feedback_percent": 99.0,
+      "min_feedback_score": 100
+    },
+    "ttb_min_price": 25,
+    "ttb_max_price": 250,
+    "shop_pages": 4,
+    "intervals_minutes": {
+      "shops": 5,
+      "deals": 3,
+      "google_news": 20,
+      "ebay": 15
+    }
+  }
 }
