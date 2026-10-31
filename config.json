@@ -48,7 +48,14 @@
   "monitor": {
     "shops": [
       "https://cardcosmos.de",
-      "https://godofcards.com"
+      "https://cardbuddys.de",
+      "https://yonko-tcg.de",
+      "https://mocards.de",
+      "https://pushdich-tcg.de",
+      "https://card-collector.net",
+      "https://pokeminati.de",
+      "https://webbas-kartenecke.de",
+      "https://crocus-cards.de"
     ],
     "deal_feeds": [
       "https://www.mydealz.de/rss/gruppe/pokemon"
