@@ -61,6 +61,14 @@ CREATE INDEX IF NOT EXISTS idx_offers_ttb ON offers(ttb_key);
 
 # ------------------------------------------------------------------ Erkennung
 POKEMON_RE = re.compile(r"pok[eé]mon", re.I)
+# Restock nur für versiegelte "große" Produkte, keine Einzelbooster oder (gegradeten) Einzelkarten
+RESTOCK_RE = re.compile(r"display|booster[\s-]*box|top[\s-]*trainer|elite[\s-]*trainer|\bttb\b|\betb\b|\btin\b|"
+                        r"tin[\s-]*box|kollektion|collection|bundle|premium|spezial[\s-]*box|special|"
+                        r"geschenk|poster|binder[\s-]*collection|build\s*&\s*battle|stadium|case", re.I)
+NOT_RESTOCK_RE = re.compile(r"einzel|single|\bpsa\b|\bcgc\b|\bbgs\b|\bgrad|gegradet|slab|\b\d{1,3}/\d{1,3}\b|"
+                            r"sleeved|\breverse\b|\bholo\b|promo[\s-]*karte|karte\b|card\b|sleeves|h[üu]llen|"
+                            r"ordner|album|spielmatte|playmat|deck[\s-]*box|w[üu]rfel|dice", re.I)
+OFFICIAL_SOURCE_RE = re.compile(r"pok[eé]mon(\.com)?$|the pok[eé]mon company", re.I)
 TCG_RE = re.compile(r"karte|card|booster|display|tcg|sammelkarten|trainer|blister|tin\b|kollektion|"
                     r"collection|deck|etb|ttb|bundle|premium|box", re.I)
 TTB_RE = re.compile(r"top[\s-]*trainer[\s-]*box|elite[\s-]*trainer[\s-]*box|\bttb\b|\betb\b", re.I)
@@ -288,23 +296,29 @@ class MonitorCog(commands.Cog):
         self.deal_loop.change_interval(minutes=iv["deals"])
         self.gnews_loop.change_interval(minutes=iv["google_news"])
         self.ebay_loop.change_interval(minutes=iv["ebay"])
-        for loop in (self.shop_loop, self.deal_loop, self.gnews_loop, self.ebay_loop):
+        for loop in (self.shop_loop, self.deal_loop, self.gnews_loop, self.ebay_loop, self.ttb_board_loop):
             loop.start()
 
     def cog_unload(self):
-        for loop in (self.shop_loop, self.deal_loop, self.gnews_loop, self.ebay_loop):
+        for loop in (self.shop_loop, self.deal_loop, self.gnews_loop, self.ebay_loop, self.ttb_board_loop):
             loop.cancel()
+
+    @staticmethod
+    def _is_official(title: str) -> bool:
+        """Google News hängt die Quelle an ("Titel - Pokemon.com"): nur offizielle Pokémon-Quellen."""
+        source = title.rsplit(" - ", 1)[-1].strip() if " - " in title else ""
+        return bool(OFFICIAL_SOURCE_RE.search(source))
 
     async def latest_news(self):
         """Neueste Pokémon-Meldung aus Google News (für den Test-Post in #tcg-info)."""
         for q in self.cfg["google_news"]:
-            if q.get("kind") == "preorder":
+            if not q.get("official"):
                 continue
             try:
                 items = await fetch_rss(self.bot.http_session, self._gnews_url(q))
             except Exception:
                 continue
-            items = [i for i in items if POKEMON_RE.search(i["title"])]
+            items = [i for i in items if self._is_official(i["title"])]
             if items:
                 from email.utils import parsedate_to_datetime
                 def ts(i):
@@ -408,7 +422,8 @@ class MonitorCog(commands.Cog):
                 await self.post("ttb_new", "🆕 Neue Top-Trainer-Box", item, shop, c, ping="ttb")
             elif not c["preorder"] and c["tcg"] and not item.get("deal"):
                 await self.post("articles", "🆕 Neu im Shop", item, shop, c)
-        elif old is not None and available and not old["available"]:
+        elif old is not None and available and not old["available"] and c["sealed"] \
+                and RESTOCK_RE.search(title) and not NOT_RESTOCK_RE.search(title):
             await self.post("restock", "🔁 Wieder lieferbar", item, shop, c, ping="restock")
 
         if key and available:
@@ -497,6 +512,8 @@ class MonitorCog(commands.Cog):
             for it in items:
                 if not POKEMON_RE.search(it["title"]):
                     continue
+                if q.get("official") and not self._is_official(it["title"]):
+                    continue
                 if not self.db.mark_seen("gnews", it["title"][:200]) or not src["seeded"]:
                     continue
                 await self.send_to(channel, embed=news_embed(it["title"], it["url"], "Google News", it["date"]))
@@ -575,13 +592,51 @@ class MonitorCog(commands.Cog):
         for ch in chunks[1:]:
             await interaction.followup.send(ch, ephemeral=True)
 
-    @app_commands.command(name="ttb", description="Aktuell günstigste deutsche Top-Trainer-Boxen (seriöse Quellen).")
-    async def ttb_cmd(self, interaction: discord.Interaction):
-        rows = self.db.conn.execute(
+    def _cheapest_ttbs(self, limit=25):
+        return self.db.conn.execute(
             "SELECT ttb_key, title, url, source, MIN(price) AS price FROM offers "
             "WHERE ttb_key IS NOT NULL AND available=1 AND price IS NOT NULL AND last_seen >= ? "
-            "GROUP BY ttb_key ORDER BY title LIMIT 25", (int(time.time()) - 48 * 3600,)).fetchall()
-        if not rows:
-            return await interaction.response.send_message("Noch keine Daten, ich sammle gerade.", ephemeral=True)
-        lines = [f"• [{r['title'][:70]}]({r['url']}) – **{euro(r['price'])}** ({r['source']})" for r in rows]
-        await interaction.response.send_message("\n".join(lines)[:1990], suppress_embeds=True)
+            "GROUP BY ttb_key ORDER BY price LIMIT ?", (int(time.time()) - 48 * 3600, limit)).fetchall()
+
+    def ttb_board_embed(self):
+        rows = self._cheapest_ttbs()
+        e = discord.Embed(title="📦 Aktuell günstigste deutsche Top-Trainer-Boxen", color=0x2ECC71)
+        if rows:
+            e.description = "\n".join(f"**{euro(r['price'])}** · [{r['title'][:80]}]({r['url']}) · {r['source']}"
+                                      for r in rows)[:4000]
+        else:
+            e.description = "Gerade ist keine passende TTB bei den überwachten Händlern lieferbar."
+        e.set_footer(text=f"Nur deutsch, versiegelt, seriöse Händler · Preise ohne Versand · "
+                          f"Stand {time.strftime('%d.%m.%Y %H:%M')} UTC · aktualisiert sich alle 15 Min.")
+        return e
+
+    @tasks.loop(minutes=15)
+    async def ttb_board_loop(self):
+        """Übersicht oben in #ttb-billigste, wird immer wieder aktualisiert (zusätzlich zu den Tiefstpreis-Pings)."""
+        embed = self.ttb_board_embed()
+        for row in self.db.channels("ttb_cheap"):
+            channel = self.bot.get_channel(row["channel_id"])
+            if channel is None:
+                continue
+            msg_id = self.db.get_meta(f"ttb_board:{row['guild_id']}")
+            try:
+                if msg_id:
+                    msg = await channel.fetch_message(int(msg_id))
+                    await msg.edit(embed=embed)
+                    continue
+            except discord.HTTPException:
+                pass
+            try:
+                msg = await channel.send(embed=embed)
+                self.db.set_meta(f"ttb_board:{row['guild_id']}", msg.id)
+                await msg.pin()
+            except discord.HTTPException:
+                pass
+
+    @ttb_board_loop.before_loop
+    async def _wait_board(self):
+        await self.bot.wait_until_ready()
+
+    @app_commands.command(name="ttb", description="Aktuell günstigste deutsche Top-Trainer-Boxen (seriöse Quellen).")
+    async def ttb_cmd(self, interaction: discord.Interaction):
+        await interaction.response.send_message(embed=self.ttb_board_embed())

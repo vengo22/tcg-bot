@@ -9,7 +9,7 @@ Hält dich auf deinem Discord-Server auf dem Laufenden:
 
 ## #tcg-info
 
-Alle TCG-News an einem Ort, jede Meldung mit Kennzeichnung (🚀 Release, 📣 Ankündigung, 🗓️ Vorbestellung, 💶 Preise & Markt, 🏆 Turniere, 📰 News), Quelle und Datum. Oben angepinnt steht der **Release-Kalender**: kommende und zuletzt erschienene Sets mit Erscheinungsdatum, Countdown und aktuellen Cardmarket-Preisen für Top-Trainer-Box und Display. Er aktualisiert sich alle 6 Stunden. Die Set-Liste steht in `config.json` → `release_calendar`. `/info` postet Kalender und neueste Meldung sofort.
+Nur offizielle Pokémon-News (pokemon.com, über Google News), jede Meldung mit Kennzeichnung (🚀 Release, 📣 Ankündigung, 🗓️ Vorbestellung, 💶 Preise & Markt, 🏆 Turniere, 📰 News), Quelle und Datum. Oben angepinnt steht der **Release-Kalender**: kommende und zuletzt erschienene Sets mit Erscheinungsdatum, Countdown und aktuellen Cardmarket-Preisen für Top-Trainer-Box und Display. Er aktualisiert sich alle 6 Stunden. Die Set-Liste steht in `config.json` → `release_calendar`. `/info` postet Kalender und neueste Meldung sofort.
 
 ## Shop- und Deal-Monitor
 
@@ -17,9 +17,9 @@ Alle TCG-News an einem Ort, jede Meldung mit Kennzeichnung (🚀 Release, 📣 A
 |---|---|
 | **#vorbestellung** | Neue Vorbestellungen aus Shops, mydealz und Google News |
 | **#tcg-artikel** | Neue Pokémon-TCG-Produkte in den überwachten Shops und Pokémon-Deals von mydealz |
-| **#restock** | Ausverkaufte Produkte, die wieder lieferbar sind (Ping-Rolle **Restock**) |
+| **#restock** | Wieder lieferbare versiegelte Produkte (Displays, TTBs, Tins, Kollektionen, Bundles), keine Einzelbooster oder Einzel-/Grading-Karten (Ping-Rolle **Restock**) |
 | **📦 Top-Trainer-Boxen → #ttb-neu** | Neue deutsche, versiegelte TTBs bei seriösen Händlern |
-| **📦 Top-Trainer-Boxen → #ttb-billigste** | Sobald eine TTB irgendwo günstiger ist als das bisher günstigste aktuelle Angebot |
+| **📦 Top-Trainer-Boxen → #ttb-billigste** | Angepinnte Übersicht der aktuell günstigsten TTBs (alle 15 Min. aktualisiert), plus Ping sobald eine TTB irgendwo günstiger ist als das bisher günstigste aktuelle Angebot |
 
 **Quellen:** Shops mit offenem Produktkatalog (Shopify/WooCommerce, Liste in `config.json` → `monitor.shops`, erweiterbar per `/shop_hinzufuegen`), mydealz (auch Amazon, MediaMarkt, Pokémon Center), Google News, optional eBay. Shops werden alle 5 Minuten geprüft, mydealz alle 3 Minuten.
 

@@ -18,11 +18,7 @@
     "preorder": "Vorbestellung",
     "restock": "Restock"
   },
-  "news_feeds": [
-    "https://www.pokebeach.com/feed",
-    "https://www.pokeguardian.com/feed",
-    "https://www.pokezentrum.de/feed/"
-  ],
+  "news_feeds": [],
   "news_keywords": [
     "set",
     "expansion",
@@ -62,21 +58,19 @@
     ],
     "google_news": [
       {
-        "q": "Pokémon Sammelkartenspiel",
-        "lang": "de"
+        "q": "Sammelkartenspiel site:pokemon.com",
+        "lang": "de",
+        "official": true
+      },
+      {
+        "q": "Pokémon TCG site:pokemon.com",
+        "lang": "en",
+        "official": true
       },
       {
         "q": "Pokémon Karten vorbestellen",
         "lang": "de",
         "kind": "preorder"
-      },
-      {
-        "q": "Pokémon Top-Trainer-Box",
-        "lang": "de"
-      },
-      {
-        "q": "Pokémon TCG new set",
-        "lang": "en"
       }
     ],
     "ebay": {
