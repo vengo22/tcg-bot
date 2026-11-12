@@ -16,6 +16,7 @@ from . import charts, sources
 from .db import DB
 from .info import InfoCog, news_embed
 from .monitor import MonitorCog
+from .pokemoncenter import PokemonCenterCog
 
 log = logging.getLogger("tcgbot")
 ROOT = Path(__file__).resolve().parent.parent
@@ -73,6 +74,7 @@ class TCGBot(commands.Bot):
         await self.add_cog(cog)
         monitor = MonitorCog(self, CONFIG, cog.send_to)
         await self.add_cog(monitor)
+        await self.add_cog(PokemonCenterCog(self, CONFIG, cog.send_to))
         await self.add_cog(InfoCog(self, CONFIG, cog.send_to, monitor.latest_news))
         guild_id = os.getenv("GUILD_ID")
         if guild_id:
@@ -172,6 +174,7 @@ class TCGCog(commands.Cog):
             "articles": "Neue Pokémon-TCG-Produkte in Shops und Deals von mydealz.",
             "restock": "Ausverkaufte Produkte, die wieder lieferbar sind – schnell sein!",
             "ttb_new": "Neue deutsche, versiegelte Top-Trainer-Boxen bei seriösen Händlern.",
+            "pc_ttb": "Neue Top-Trainer-Boxen im Pokémon Center – sofort, mit Ping (Rolle Pokémon-Center).",
             "ttb_cheap": "Neuer Tiefstpreis für eine deutsche Top-Trainer-Box (seriöse Händler).",
         }
         created = []

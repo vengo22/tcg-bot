@@ -20,6 +20,7 @@ Nur offizielle Pokémon-News (pokemon.com, über Google News), jede Meldung mit 
 | **#restock** | Wieder lieferbare versiegelte Produkte (Displays, TTBs, Tins, Kollektionen, Bundles), keine Einzelbooster oder Einzel-/Grading-Karten (Ping-Rolle **Restock**) |
 | **📦 Top-Trainer-Boxen → #ttb-neu** | Neue deutsche, versiegelte TTBs bei seriösen Händlern |
 | **📦 Top-Trainer-Boxen → #ttb-billigste** | Angepinnte Übersicht der aktuell günstigsten TTBs (alle 15 Min. aktualisiert), plus Ping sobald eine TTB irgendwo günstiger ist als das bisher günstigste aktuelle Angebot |
+| **📦 Top-Trainer-Boxen → #pokemon-center-ttb** | Neue Top-Trainer-Boxen im Pokémon Center, sofort mit Ping der Rolle **Pokémon-Center** (siehe unten) |
 
 **Quellen:** Shops mit offenem Produktkatalog (Shopify/WooCommerce, Liste in `config.json` → `monitor.shops`, erweiterbar per `/shop_hinzufuegen`), mydealz (auch Amazon, MediaMarkt, Pokémon Center), Google News, optional eBay. Shops werden alle 5 Minuten geprüft, mydealz alle 3 Minuten.
 
@@ -33,6 +34,15 @@ Weitere Befehle: `/ttb` (aktuell günstigste TTBs), `/quellen` (Status aller Que
 
 Nach einem Update einmal `/setup` ausführen, damit die neuen Kanäle und Rollen angelegt werden.
 
+## Pokémon-Center-Alarm (#pokemon-center-ttb)
+
+Der Bot prüft jede Minute die TTB-Seiten des Pokémon Centers (`config.json` → `pokemon_center.pages`, Deutschland und UK) und postet jede **neue** Top-Trainer-Box sofort mit Ping der Rolle **Pokémon-Center**. Beim ersten Durchlauf merkt er sich nur, was schon da ist.
+
+Ehrlich gesagt: Das Pokémon Center hat einen starken Bot-Schutz (Imperva). Ob der Server durchkommt, zeigt erst der echte Betrieb. Prüfen kannst du es mit `/pokemoncenter` (🟢 = klappt, 🔴 = gesperrt) oder `/quellen`.
+- Bei einer Sperre wartet der Bot automatisch länger (2, 4, 8 … bis 60 Min.), damit die Server-IP nicht dauerhaft gesperrt wird.
+- **Ersatzweg, läuft immer mit:** mydealz-Deals, bei denen Pokémon Center als Händler genannt ist, landen auch in diesem Kanal (meist wenige Minuten nach Erscheinen).
+- Falls die Server-IP dauerhaft gesperrt bleibt: In `.env` kann `PC_PROXY=http://user:pass@host:port` (z.B. ein Wohnnetz-Proxy) eingetragen werden.
+
 ## Befehle
 
 | Befehl | Was er macht |
@@ -43,6 +53,7 @@ Nach einem Update einmal `/setup` ausführen, damit die neuen Kanäle und Rollen
 | `/watch produkt [zielpreis]` | Produkt beobachten. Mit Zielpreis: Alarm sobald es so günstig ist. Ohne: Alarm bei 30-Tage-Tief mind. 10 % unter Trend. |
 | `/unwatch produkt` / `/watchlist` | Beobachtung beenden / deine Liste ansehen. |
 | `/sets` | Die neuesten Sets. |
+| `/pokemoncenter` | Pokémon Center jetzt prüfen: kommt der Bot durch, welche TTBs sind gelistet. |
 
 Produktnamen sind die englischen Cardmarket-Namen. Beim Tippen schlägt der Bot passende Produkte vor (📦 = Sealed, 🃏 = Einzelkarte). Abkürzungen wie `etb`, `upc`, `display` funktionieren.
 
