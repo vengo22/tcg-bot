@@ -9,14 +9,16 @@
     "articles": "tcg-artikel",
     "restock": "restock",
     "ttb_new": "ttb-neu",
-    "ttb_cheap": "ttb-billigste"
+    "ttb_cheap": "ttb-billigste",
+    "pc_ttb": "pokemon-center-ttb"
   },
   "roles": {
     "sets": "Set-News",
     "alerts": "Preisalarm",
     "ttb": "TTB-Deals",
     "preorder": "Vorbestellung",
-    "restock": "Restock"
+    "restock": "Restock",
+    "pc_ttb": "Pokémon-Center"
   },
   "news_feeds": [],
   "news_keywords": [
@@ -39,7 +41,8 @@
   "price_drop_percent": 10,
   "channel_categories": {
     "ttb_new": "📦 Top-Trainer-Boxen",
-    "ttb_cheap": "📦 Top-Trainer-Boxen"
+    "ttb_cheap": "📦 Top-Trainer-Boxen",
+    "pc_ttb": "📦 Top-Trainer-Boxen"
   },
   "monitor": {
     "shops": [
@@ -133,5 +136,15 @@
       "emoji": "🇯🇵",
       "products": "Mega-Lucario Z-ex, Mega-Knakrack Z-ex, Mega-Absol Z-ex"
     }
-  ]
+  ],
+  "pokemon_center": {
+    "pages": [
+      "https://www.pokemoncenter.com/de-de/category/elite-trainer-box",
+      "https://www.pokemoncenter.com/en-gb/category/elite-trainer-box"
+    ],
+    "interval_seconds": 60,
+    "deal_feeds": [
+      "https://www.mydealz.de/rss/gruppe/pokemon"
+    ]
+  }
 }

@@ -16,6 +16,7 @@ from . import charts, sources
 from .db import DB
 from .info import InfoCog, news_embed
 from .monitor import MonitorCog
+from .pokemoncenter import PokemonCenterCog
 
 log = logging.getLogger("tcgbot")
 ROOT = Path(__file__).resolve().parent.parent
@@ -73,6 +74,7 @@ class TCGBot(commands.Bot):
         await self.add_cog(cog)
         monitor = MonitorCog(self, CONFIG, cog.send_to)
         await self.add_cog(monitor)
+        await self.add_cog(PokemonCenterCog(self, CONFIG, cog.send_to))
         await self.add_cog(InfoCog(self, CONFIG, cog.send_to, monitor.latest_news))
         guild_id = os.getenv("GUILD_ID")
         if guild_id:
@@ -145,6 +147,20 @@ class TCGCog(commands.Cog):
     @app_commands.guild_only()
     async def setup_cmd(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
+        try:
+            await self._setup(interaction)
+        except discord.Forbidden as ex:
+            log.exception("/setup: fehlende Rechte")
+            await interaction.followup.send(
+                f"❌ Mir fehlt ein Recht auf diesem Server ({ex.text}). Bitte gib der Bot-Rolle "
+                "„Kanäle verwalten“ und „Rollen verwalten“ und schiebe sie in den Servereinstellungen → "
+                "Rollen ganz nach oben. Dann /setup nochmal.", ephemeral=True)
+        except Exception as ex:
+            log.exception("/setup fehlgeschlagen")
+            await interaction.followup.send(f"❌ /setup ist fehlgeschlagen: {type(ex).__name__}: {ex}"[:1900],
+                                            ephemeral=True)
+
+    async def _setup(self, interaction: discord.Interaction):
         guild = interaction.guild
         for name in CONFIG["roles"].values():
             if not discord.utils.get(guild.roles, name=name):
@@ -172,6 +188,7 @@ class TCGCog(commands.Cog):
             "articles": "Neue Pokémon-TCG-Produkte in Shops und Deals von mydealz.",
             "restock": "Ausverkaufte Produkte, die wieder lieferbar sind – schnell sein!",
             "ttb_new": "Neue deutsche, versiegelte Top-Trainer-Boxen bei seriösen Händlern.",
+            "pc_ttb": "Neue Top-Trainer-Boxen im Pokémon Center – sofort, mit Ping (Rolle Pokémon-Center).",
             "ttb_cheap": "Neuer Tiefstpreis für eine deutsche Top-Trainer-Box (seriöse Händler).",
         }
         created = []
