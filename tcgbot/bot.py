@@ -147,6 +147,20 @@ class TCGCog(commands.Cog):
     @app_commands.guild_only()
     async def setup_cmd(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
+        try:
+            await self._setup(interaction)
+        except discord.Forbidden as ex:
+            log.exception("/setup: fehlende Rechte")
+            await interaction.followup.send(
+                f"❌ Mir fehlt ein Recht auf diesem Server ({ex.text}). Bitte gib der Bot-Rolle "
+                "„Kanäle verwalten“ und „Rollen verwalten“ und schiebe sie in den Servereinstellungen → "
+                "Rollen ganz nach oben. Dann /setup nochmal.", ephemeral=True)
+        except Exception as ex:
+            log.exception("/setup fehlgeschlagen")
+            await interaction.followup.send(f"❌ /setup ist fehlgeschlagen: {type(ex).__name__}: {ex}"[:1900],
+                                            ephemeral=True)
+
+    async def _setup(self, interaction: discord.Interaction):
         guild = interaction.guild
         for name in CONFIG["roles"].values():
             if not discord.utils.get(guild.roles, name=name):
