@@ -119,7 +119,7 @@ class TCGCog(commands.Cog):
             text = content
             if ping_role:
                 role = discord.utils.get(channel.guild.roles, name=CONFIG["roles"].get(ping_role))
-                text = role.mention if role else text
+                text = f"{role.mention} {content}" if role and content else (role.mention if role else text)
             try:
                 await channel.send(content=text, **kwargs)
             except discord.HTTPException:
