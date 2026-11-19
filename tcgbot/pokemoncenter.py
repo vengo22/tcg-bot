@@ -152,7 +152,10 @@ class PokemonCenterCog(commands.Cog):
             e.set_thumbnail(url=item["image"])
         e.set_footer(text="Gefunden")
         e.timestamp = discord.utils.utcnow()
-        await self.send_to("pc_ttb", embed=e, ping_role="pc_ttb")
+        # Text direkt in der Nachricht, damit die Handy-Benachrichtigung sofort sagt, worum es geht
+        price = f" für {euro(item['price'])}" if item.get("price") is not None else ""
+        await self.send_to("pc_ttb", embed=e, ping_role="pc_ttb",
+                           content=f"🚨 Neue TTB im Pokémon Center{price}: {item['title'][:150]}")
 
     # -------------------------------------------------------------- Schleifen
     @tasks.loop(seconds=60)
@@ -181,7 +184,7 @@ class PokemonCenterCog(commands.Cog):
             self._mark(url, True, len(items))
             await asyncio.sleep(random.uniform(2, 5))
 
-    @tasks.loop(minutes=2)
+    @tasks.loop(minutes=1)
     async def deal_loop(self):
         """Ersatzweg: mydealz meldet Pokémon-Center-Deals oft schon Minuten nach Erscheinen."""
         for feed in self.cfg.get("deal_feeds", []):
@@ -222,7 +225,7 @@ class PokemonCenterCog(commands.Cog):
                              + "".join(f"\n   • [{t['title'][:80]}]({t['url']})" for t in ttbs[:5]))
             except Exception as ex:
                 lines.append(f"🔴 {url}\n   {ex}")
-        lines.append("ℹ️ mydealz-Ersatzweg läuft immer mit (alle 2 Min.).")
+        lines.append("ℹ️ mydealz-Ersatzweg läuft immer mit (jede Minute).")
         if self.proxy:
             lines.append("🔀 Abruf über Proxy (PC_PROXY).")
         await interaction.followup.send("\n".join(lines)[:1990], ephemeral=True, suppress_embeds=True)
